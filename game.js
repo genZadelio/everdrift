@@ -222,6 +222,7 @@
     state.biomeIndex = 0;
     state.deepestBiome = 0;
     state.nextMilestone = 500;
+    milestoneValue.textContent = "500 M";
     state.objects.length = 0;
     state.particles.length = 0;
     state.player.x = 0.5;
@@ -243,6 +244,8 @@
     resetRun();
     state.phase = "playing";
     initAudio();
+    pauseButton.setAttribute("aria-label", "Pause game");
+    updateHud(true);
     hideScreen(startScreen);
     hideScreen(pauseScreen);
     hideScreen(gameOverScreen);
