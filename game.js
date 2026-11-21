@@ -299,6 +299,7 @@
 
     ui.finalDistance.innerHTML = `${finalDistance.toLocaleString()}<small>m</small>`;
     ui.finalScore.textContent = Math.floor(state.score).toLocaleString();
+    updateHud(true);
     ui.finalBiome.textContent = BIOMES[state.deepestBiome].name.replace("THE ", "");
     ui.newBest.hidden = !isNewBest;
     ui.best.textContent = state.best.toLocaleString();
