@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070914">
+  <meta name="description" content="Everdrift is an endless procedural space odyssey. There is no finish line—only the next horizon.">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>Everdrift — There Is No Finish Line</title>
+</head>
+<body>
+  <main class="game-shell" id="gameShell">
+    <canvas id="gameCanvas" aria-label="Everdrift game field"></canvas>
+    <div class="aurora aurora--one" aria-hidden="true"></div>
+    <div class="aurora aurora--two" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Everdrift home">
+        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 2 29.5 18.5 46 24l-16.5 5.5L24 46l-5.5-16.5L2 24l16.5-5.5L24 2Z"/>
+          <circle cx="24" cy="24" r="4.5"/>
+        </svg>
+        <span class="brand__name">EVER<span>DRIFT</span></span>
+      </a>
+
+      <div class="field-status" aria-label="Game status">
+        <i></i>
+        <span id="fieldStatus">FIELD STANDBY</span>
+      </div>
+
+      <nav class="top-actions" aria-label="Game options">
+        <button class="icon-button" id="installButton" type="button" aria-label="Install Everdrift" title="Install game" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+        </button>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Mute sound" aria-pressed="false" title="Toggle sound">
+          <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h3l4 4V6L8 10H5Z"/><path d="M16 9a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10"/></svg>
+          <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h3l4 4V6L8 10H5Z"/><path d="m16 10 5 5m0-5-5 5"/></svg>
+        </button>
+        <button class="icon-button" id="helpButton" type="button" aria-label="Show controls" title="Controls">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1.1.9-1.1 1.8m0 3.5v.1"/></svg>
+        </button>
+        <button class="icon-button" id="pauseButton" type="button" aria-label="Pause game" title="Pause" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12m6-12v12"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <section class="hud" id="hud" aria-label="Game status" hidden>
+      <div class="hud__primary">
+        <span class="hud__label">DISTANCE</span>
+        <strong><span id="distanceValue">0</span><small>m</small></strong>
+      </div>
+      <div class="hud__divider"></div>
+      <div class="hud__stat">
+        <span class="hud__label">LUMENS</span>
+        <strong id="scoreValue">000000</strong>
+      </div>
+      <div class="hud__stat hud__stat--combo">
+        <span class="hud__label">RESONANCE</span>
+        <strong id="multiplierValue">×1</strong>
+      </div>
+      <div class="hud__meters">
+        <div class="meter meter--integrity">
+          <div class="meter__label"><span>HULL</span><b id="integrityText">100%</b></div>
+          <div class="meter__track"><i id="integrityBar"></i></div>
+        </div>
+        <div class="meter meter--charge">
+          <div class="meter__label"><span>PHASE</span><b id="chargeText">READY</b></div>
+          <div class="meter__track"><i id="chargeBar"></i></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="biome-card" id="biomeCard" aria-live="polite">
+      <span class="biome-card__eyebrow">ENTERING</span>
+      <strong id="biomeName">THE INDIGO EXPANSE</strong>
+      <div class="biome-card__line"><i></i></div>
+    </aside>
+
+    <aside class="best-card" id="bestCard" aria-label="Personal best">
+      <span>PERSONAL BEST</span>
+      <strong><b id="bestValue">0</b> m</strong>
+    </aside>
+
+    <div class="milestone" id="milestone" aria-live="polite">
+      <span>DISTANCE MARK</span>
+      <strong id="milestoneValue">500 M</strong>
+      <i></i>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <i></i><span id="toastText">New field detected</span>
+    </div>
+
+    <div class="control-hint" id="controlHint">
+      <div class="control-hint__keys" aria-hidden="true">
+        <kbd>WASD</kbd><span>or</span><kbd>DRAG</kbd><span>to steer</span>
+      </div>
+      <div class="control-hint__phase"><kbd>SPACE</kbd><span>phase through</span></div>
+    </div>
+
+    <button class="phase-button" id="phaseButton" type="button" aria-label="Activate phase shift" hidden>
+      <span class="phase-button__ring"></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.2 6.8H21l-5.5 4 2.1 6.7-5.6-4-5.6 4 2.1-6.7-5.5-4h6.8L12 3Z"/></svg>
+      <small>PHASE</small>
+    </button>
+
+    <section class="screen screen--start is-visible" id="startScreen" aria-labelledby="gameTitle">
+      <div class="screen__panel">
+        <div class="eyebrow"><i></i> A PROCEDURAL SPACE ODYSSEY</div>
+        <h1 id="gameTitle">EVER<span>DRIFT</span></h1>
+        <p class="screen__lead">The horizon keeps moving.<br><strong>So do you.</strong></p>
+        <p class="screen__copy">Fly through an infinite field of light, collect the lost, and master the phase shift. There is no finish line—only the next horizon.</p>
+        <button class="primary-button" id="startButton" type="button">
+          <span>BEGIN THE DRIFT</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+        </button>
+        <div class="start-meta">
+          <div><span>YOUR BEST</span><strong id="startBest">0 M</strong></div>
+          <div><span>FIELD TYPE</span><strong>ENDLESS</strong></div>
+          <div><span>ENDINGS</span><strong>NONE</strong></div>
+        </div>
+      </div>
+      <aside class="screen__aside" aria-hidden="true">
+        <span class="screen__aside-label">DRIFT LOG // 001</span>
+        <div class="orbit"><i></i><i></i><i></i><b></b></div>
+        <p>Every run is a new world.<br>Every world leads onward.</p>
+      </aside>
+    </section>
+
+    <section class="screen screen--pause" id="pauseScreen" aria-labelledby="pauseTitle" hidden>
+      <div class="screen__panel screen__panel--compact">
+        <div class="eyebrow"><i></i> FIELD SUSPENDED</div>
+        <h2 id="pauseTitle">Take a breath.</h2>
+        <p class="screen__copy">The endless field will wait exactly as long as you need.</p>
+        <button class="primary-button" id="resumeButton" type="button">
+          <span>RESUME DRIFT</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+        </button>
+        <button class="text-button" id="restartFromPause" type="button">Restart this run</button>
+      </div>
+    </section>
+
+    <section class="screen screen--over" id="gameOverScreen" aria-labelledby="gameOverTitle" hidden>
+      <div class="screen__panel screen__panel--compact">
+        <div class="eyebrow"><i></i> SIGNAL LOST // THE FIELD REMAINS</div>
+        <h2 id="gameOverTitle">The drift<br><span>continues.</span></h2>
+        <p class="screen__copy">Your run ended. The world did not. Go again and reach farther.</p>
+        <div class="result-grid">
+          <div><span>DISTANCE</span><strong id="finalDistance">0<small>m</small></strong></div>
+          <div><span>LUMENS</span><strong id="finalScore">0</strong></div>
+          <div><span>DEEPEST BIOME</span><strong id="finalBiome">—</strong></div>
+        </div>
+        <button class="primary-button" id="restartButton" type="button">
+          <span>DRIFT AGAIN</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8.2A7 7 0 0 1 18.7 7M17.9 15.8A7 7 0 0 1 5.3 17"/></svg>
+        </button>
+        <p class="new-best" id="newBest" hidden>✦ NEW PERSONAL BEST</p>
+      </div>
+    </section>
+
+    <dialog class="controls-dialog" id="controlsDialog">
+      <button class="dialog-close" id="closeControls" type="button" aria-label="Close controls">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="eyebrow"><i></i> FLIGHT MANUAL</div>
+      <h2>How to drift</h2>
+      <div class="control-list">
+        <div><span class="control-icon control-icon--keys"><kbd>WASD</kbd></span><p><strong>Steer the glider</strong><small>Move with the keys, mouse, or touch.</small></p></div>
+        <div><span class="control-icon control-icon--keys"><kbd>SPACE</kbd></span><p><strong>Phase shift</strong><small>Blink through hazards. It costs charge.</small></p></div>
+        <div><span class="control-icon control-icon--keys"><kbd>P</kbd></span><p><strong>Pause the field</strong><small>Take a break whenever you need one.</small></p></div>
+        <div><span class="control-icon control-icon--keys"><kbd>↕</kbd></span><p><strong>Collect light</strong><small>Chain nearby motes to raise your resonance.</small></p></div>
+      </div>
+      <p class="controls-note">Tip: repairs are rare. Reserve your hull for the impossible line.</p>
+    </dialog>
+
+    <div class="rotate-notice" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 7h11a5 5 0 0 1 0 10H9M9 3 5 7l4 4"/></svg>
+      <span>Rotate your device<br>for the widest flight path</span>
+    </div>
+  </main>
+
+  <noscript><p style="padding:2rem;color:white;background:#070914;font:16px sans-serif">Everdrift needs JavaScript to generate its infinite field.</p></noscript>
+  <script src="game.js" defer></script>
+</body>
+</html>
