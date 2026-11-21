@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://genzadelio.github.io/everdrift/sitemap.xml
