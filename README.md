@@ -4,7 +4,7 @@
 
 ## Play online
 
-- **Live game:** https://genzadelio.github.io/everdrift/
+- **Live game:** https://everdrift.netlify.app/
 - **Source:** https://github.com/genZadelio/everdrift
 
 ## Play
@@ -35,4 +35,4 @@ Then visit `http://127.0.0.1:8080`.
 
 ## Deploy
 
-The game is deployed to GitHub Pages from the `main` branch at https://genzadelio.github.io/everdrift/. The folder is also ready for any static host: for Netlify, use this folder as the publish directory. `netlify.toml` supplies secure cache and content-security headers for that target.
+The game is published on Netlify at https://everdrift.netlify.app/. The folder is also ready for any static host: for Netlify, use this folder as the publish directory. `netlify.toml` supplies secure cache and content-security headers for that target.
